@@ -1,0 +1,409 @@
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+html,
+body {
+  overflow-x: hidden;
+}
+
+.destinations {
+  width: 90%;
+  margin: auto;
+  padding: 80px 0;
+}
+
+/* Welcome banner */
+.welcome-banner {
+  background: #0a1628;
+  border-radius: 16px;
+  padding: 28px 36px;
+  margin-bottom: 48px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 24px;
+}
+
+.welcome-title {
+  font-size: 1.4rem;
+  font-weight: 800;
+  color: #fff;
+  margin-bottom: 4px;
+  letter-spacing: -0.3px;
+}
+
+.welcome-sub {
+  font-size: 0.9rem;
+  color: #8899bb;
+  margin: 0;
+}
+
+.welcome-btn {
+  padding: 12px 24px;
+  background: #c9a84c;
+  color: #0a1628;
+  border-radius: 8px;
+  font-weight: 700;
+  font-size: 0.9rem;
+  text-decoration: none;
+  white-space: nowrap;
+  transition: all 0.2s;
+  flex-shrink: 0;
+}
+
+.welcome-btn:hover {
+  background: #e8c96a;
+  transform: translateY(-1px);
+}
+
+/* Title */
+.title {
+  text-align: center;
+  margin-bottom: 50px;
+}
+
+.title h1 {
+  font-size: 3rem;
+  margin-bottom: 10px;
+}
+
+.title p {
+  color: gray;
+  font-size: 1.1rem;
+}
+
+/* Search + filter */
+.search-section {
+  display: flex;
+  justify-content: center;
+  gap: 16px;
+  flex-wrap: wrap;
+  margin-bottom: 50px;
+}
+
+.search-input {
+  flex: 1;
+  min-width: 220px;
+  max-width: 90%;
+  padding: 12px 18px;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  font-size: 1rem;
+  outline: none;
+  transition: 0.3s;
+}
+
+.search-input:focus {
+  border-color: #0a1628;
+  box-shadow: 0 0 0 3px rgba(10, 22, 40, 0.15);
+}
+
+.type-select {
+  padding: 12px 18px;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  font-size: 1rem;
+  background: white;
+  cursor: pointer;
+  outline: none;
+  transition: 0.3s;
+}
+
+.type-select:focus {
+  border-color: #0a1628;
+}
+
+/* Grid */
+.destination-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 24px;
+}
+
+.no-results {
+  text-align: center;
+  color: gray;
+  font-size: 1.1rem;
+  grid-column: 1 / -1;
+  padding: 40px 0;
+}
+
+.loading-text {
+  text-align: center;
+  color: gray;
+  margin-bottom: 24px;
+  font-size: 0.95rem;
+}
+
+/* Card */
+.card {
+  overflow: hidden;
+  border-radius: 18px;
+  background: white;
+  box-shadow: 0 12px 25px rgba(0, 0, 0, 0.12);
+  transition: 0.4s;
+}
+
+.card:hover {
+  transform: translateY(-10px);
+}
+
+.card img {
+  width: 100%;
+  aspect-ratio: 16/10;
+  height: auto;
+  object-fit: cover;
+}
+
+.card-content {
+  padding: 20px;
+}
+
+.card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 8px;
+}
+
+.card-content h2 {
+  font-size: 1.3rem;
+}
+
+.type-badge {
+  background: #f5e9c8;
+  color: #0a1628;
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: capitalize;
+  padding: 4px 10px;
+  border-radius: 20px;
+}
+
+.country {
+  color: gray;
+  margin-bottom: 12px;
+  font-size: 0.9rem;
+}
+
+.price {
+  font-size: 1.1rem;
+  font-weight: 800;
+  color: #0a1628;
+  margin-bottom: 10px;
+}
+
+.description {
+  color: #555;
+  font-size: 0.95rem;
+  line-height: 1.5;
+  margin-bottom: 8px;
+}
+
+.see-more-btn {
+  border: none;
+  background: none;
+  color: #0a1628;
+  font-weight: 600;
+  font-size: 0.9rem;
+  cursor: pointer;
+  padding: 0;
+  margin-bottom: 12px;
+  display: inline-block;
+}
+
+.see-more-btn:hover {
+  text-decoration: underline;
+}
+
+.heart-btn {
+  border: 1px solid #ddd;
+  background: #fff;
+  color: #111;
+  padding: 8px 16px;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 0.85rem;
+  font-weight: 600;
+  margin-bottom: 10px;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  transition: all 0.2s;
+  width: 100%;
+  justify-content: center;
+}
+
+.heart-btn:hover {
+  border-color: #0a1628;
+  background: #f9f9f9;
+}
+
+.heart-btn.wishlisted {
+  background: #fff5f5;
+  border-color: #ffcccc;
+  color: #c00;
+}
+
+.book-now-btn {
+  border: none;
+  background: #0a1628;
+  color: white;
+  padding: 12px 28px;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: 0.3s;
+  width: 100%;
+  font-weight: 700;
+  font-size: 0.95rem;
+}
+
+.book-now-btn:hover {
+  background: #122040;
+}
+
+/* ===========================
+   LARGE LAPTOPS
+=========================== */
+@media (max-width: 1200px) {
+  .destinations {
+    width: 95%;
+  }
+
+  .destination-grid {
+    grid-template-columns: repeat(3, 1fr);
+    gap: 24px;
+  }
+}
+
+/* ===========================
+   TABLETS & SMALL LAPTOPS
+=========================== */
+@media (max-width: 992px) {
+  .welcome-banner {
+    flex-wrap: wrap;
+    gap: 20px;
+  }
+
+  .welcome-banner > div {
+    flex: 1;
+    min-width: 250px;
+  }
+
+  .destination-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 22px;
+  }
+
+  .search-section {
+    flex-wrap: wrap;
+  }
+
+  .type-select {
+    width: 220px;
+  }
+
+  .title h1 {
+    font-size: 2.4rem;
+  }
+}
+
+/* ===========================
+   TABLETS
+=========================== */
+@media (max-width: 768px) {
+  .destinations {
+    width: 94%;
+    padding: 50px 0;
+  }
+
+  .welcome-banner {
+    flex-direction: column;
+    align-items: flex-start;
+    padding: 20px;
+  }
+
+  .welcome-btn {
+    width: 100%;
+    text-align: center;
+  }
+
+  .search-section {
+    flex-direction: column;
+  }
+
+  .search-input,
+  .type-select {
+    width: 100%;
+  }
+
+  .destination-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .title h1 {
+    font-size: 2rem;
+  }
+}
+
+/* ===========================
+   MOBILE
+=========================== */
+@media (max-width: 576px) {
+  .destinations {
+    width: 95%;
+    padding: 35px 0;
+  }
+
+  .welcome-title {
+    font-size: 1.2rem;
+  }
+
+  .welcome-sub {
+    font-size: 0.9rem;
+  }
+
+  .card {
+    border-radius: 14px;
+  }
+
+  .card-content {
+    padding: 16px;
+  }
+
+  .card-content h2 {
+    font-size: 1.15rem;
+  }
+
+  .description {
+    font-size: 0.9rem;
+  }
+
+  .book-now-btn {
+    width: 100%;
+  }
+}
+
+/* ===========================
+   SMALL PHONES
+=========================== */
+@media (max-width: 400px) {
+  .title h1 {
+    font-size: 1.6rem;
+  }
+
+  .welcome-title {
+    font-size: 1rem;
+  }
+
+  .welcome-btn {
+    padding: 12px;
+  }
+
+  .card-content {
+    padding: 14px;
+  }
+}
