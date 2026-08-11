@@ -1,79 +1,296 @@
 import { useState, useEffect } from "react";
-import "./Home.css";
 import { publicInstance } from "../api/axios";
-import { ListingCard } from "../components/ListingCard";
-
-const normalizeListing = (l) => ({
-  _id: l._id,
-  id: l._id,
-  name: l.title,
-  country: l.origin,
-  continent: l.continent,
-  type: l.type,
-  image: l.image,
-  price: l.price,
-  currency: l.currency,
-  description: l.description,
-  departureDate: l.departureDate,
-  seatsAvailable: l.seatsAvailable,
-  isBackend: true,
-});
+import { BookNowButton } from "../components/BookNowButton";
+import { useWishlist } from "../context/WishlistContext";
+import { useAuth } from "../context/AuthContext";
 
 export const Flights = () => {
   const [listings, setListings] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
-  const [searchTerm, setSearchTerm] = useState("");
+  const [search, setSearch] = useState("");
+  const [expandedIds, setExpandedIds] = useState([]);
+  const { user } = useAuth();
+  const { isWishlisted, addToWishlist, removeFromWishlist } = useWishlist();
 
   useEffect(() => {
-    const fetchFlights = async () => {
+    const fetch = async () => {
       try {
-        setLoading(true);
-        setError("");
         const res = await publicInstance.get("/listing?type=flight");
-        setListings((res.data.listings || []).map(normalizeListing));
+        setListings(res.data.listings || []);
       } catch (err) {
-        setError(err.response?.data?.message || "Could not load flights");
+        setError("Could not load flights");
       } finally {
         setLoading(false);
       }
     };
-    fetchFlights();
+    fetch();
   }, []);
 
   const filtered = listings.filter(
-    (place) =>
-      place.name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      place.country?.toLowerCase().includes(searchTerm.toLowerCase()),
+    (l) =>
+      l.title?.toLowerCase().includes(search.toLowerCase()) ||
+      l.origin?.toLowerCase().includes(search.toLowerCase()) ||
+      l.destination?.toLowerCase().includes(search.toLowerCase()),
   );
 
-  return (
-    <section className="destinations">
-      <div className="title">
-        <h1>Flights</h1>
-        <p>Browse available flight listings and book your next trip.</p>
-      </div>
+  const toggleExpanded = (id) => {
+    setExpandedIds((prev) =>
+      prev.includes(id) ? prev.filter((i) => i !== id) : [...prev, id],
+    );
+  };
 
-      <div className="search-section">
+  return (
+    <div style={styles.page}>
+      <div style={styles.hero}>
+        <h1 style={styles.heroTitle}>✈ Flights</h1>
+        <p style={styles.heroSub}>
+          Find and book flights to destinations around the world
+        </p>
         <input
-          type="text"
-          placeholder="Search by destination or origin..."
-          value={searchTerm}
-          onChange={(e) => setSearchTerm(e.target.value)}
-          className="search-input"
+          style={styles.search}
+          placeholder="Search by origin, destination or title..."
+          value={search}
+          onChange={(e) => setSearch(e.target.value)}
         />
       </div>
 
-      {loading && <p className="loading-text">Loading flights...</p>}
-      {error && <p className="loading-text">{error}</p>}
+      <div style={styles.container}>
+        {loading && <p style={styles.loading}>Loading flights...</p>}
+        {error && <p style={styles.error}>{error}</p>}
 
-      <div className="destination-grid">
-        {!loading && filtered.length === 0 ? (
-          <p className="no-results">No flights available right now.</p>
-        ) : (
-          filtered.map((place) => <ListingCard place={place} key={place.id} />)
+        {!loading && filtered.length === 0 && (
+          <div style={styles.empty}>
+            <p style={styles.emptyIcon}>✈️</p>
+            <p style={styles.emptyTitle}>No flights available</p>
+            <p style={styles.emptyText}>
+              Check back soon or contact us for custom flight packages.
+            </p>
+          </div>
         )}
+
+        <div style={styles.grid}>
+          {filtered.map((listing) => {
+            const isExpanded = expandedIds.includes(listing._id);
+            return (
+              <div key={listing._id} style={styles.card}>
+                <img
+                  src={listing.image}
+                  alt={listing.title}
+                  style={styles.img}
+                />
+                <div style={styles.cardBody}>
+                  <div style={styles.cardTop}>
+                    <h3 style={styles.cardTitle}>{listing.title}</h3>
+                    <span style={styles.badge}>{listing.type}</span>
+                  </div>
+                  <p style={styles.route}>
+                    {listing.origin} → {listing.destination}
+                  </p>
+                  <p style={styles.continent}>{listing.continent}</p>
+                  {listing.departureDate && (
+                    <p style={styles.date}>
+                      🗓 {new Date(listing.departureDate).toDateString()}
+                    </p>
+                  )}
+                  {listing.duration && (
+                    <p style={styles.duration}>⏱ {listing.duration}</p>
+                  )}
+                  <p style={styles.price}>₦{listing.price?.toLocaleString()}</p>
+                  <p style={styles.seats}>
+                    {listing.seatsAvailable} seats available
+                  </p>
+                  <p style={styles.description}>
+                    {isExpanded
+                      ? listing.description
+                      : `${listing.description?.slice(0, 90)}...`}
+                  </p>
+                  <button
+                    style={styles.seeMoreBtn}
+                    onClick={() => toggleExpanded(listing._id)}
+                  >
+                    {isExpanded ? "See less" : "See more"}
+                  </button>
+                  {user && (
+                    <button
+                      style={{
+                        ...styles.heartBtn,
+                        ...(isWishlisted(listing._id)
+                          ? styles.heartBtnActive
+                          : {}),
+                      }}
+                      onClick={() =>
+                        isWishlisted(listing._id)
+                          ? removeFromWishlist(listing._id)
+                          : addToWishlist(listing._id)
+                      }
+                    >
+                      {isWishlisted(listing._id) ? "❤️ Saved" : "🤍 Save"}
+                    </button>
+                  )}
+                  <BookNowButton
+                    destination={{
+                      id: listing._id,
+                      name: listing.title,
+                      country: listing.origin,
+                      continent: listing.continent,
+                      type: listing.type,
+                      image: listing.image,
+                      price: listing.price,
+                      currency: listing.currency,
+                      description: listing.description,
+                      departureDate: listing.departureDate,
+                      seatsAvailable: listing.seatsAvailable,
+                      isBackend: true,
+                    }}
+                  />
+                </div>
+              </div>
+            );
+          })}
+        </div>
       </div>
-    </section>
+    </div>
   );
+};
+
+const styles = {
+  page: {
+    fontFamily: "'Inter', 'Helvetica Neue', Arial, sans-serif",
+    background: "#f9f9f9",
+    minHeight: "100vh",
+  },
+  hero: {
+    background: "#0a1628",
+    padding: "64px 24px 48px",
+    textAlign: "center",
+  },
+  heroTitle: {
+    fontSize: "36px",
+    fontWeight: "800",
+    color: "#fff",
+    marginBottom: "12px",
+    letterSpacing: "-0.5px",
+  },
+  heroSub: { fontSize: "16px", color: "#8899bb", marginBottom: "32px" },
+  search: {
+    width: "100%",
+    maxWidth: "480px",
+    padding: "13px 18px",
+    border: "none",
+    borderRadius: "8px",
+    fontSize: "14px",
+    outline: "none",
+    fontFamily: "'Inter', sans-serif",
+  },
+  container: { maxWidth: "1200px", margin: "0 auto", padding: "48px 24px" },
+  grid: {
+    display: "grid",
+    gridTemplateColumns: "repeat(auto-fill, minmax(300px, 1fr))",
+    gap: "24px",
+  },
+  card: {
+    background: "#fff",
+    border: "1px solid #eee",
+    borderRadius: "16px",
+    overflow: "hidden",
+    boxShadow: "0 2px 8px rgba(0,0,0,0.04)",
+    transition: "0.3s",
+  },
+  img: { width: "100%", height: "200px", objectFit: "cover" },
+  cardBody: { padding: "20px" },
+  cardTop: {
+    display: "flex",
+    justifyContent: "space-between",
+    alignItems: "flex-start",
+    marginBottom: "8px",
+  },
+  cardTitle: {
+    fontSize: "16px",
+    fontWeight: "800",
+    color: "#0a1628",
+    flex: 1,
+    marginRight: "8px",
+  },
+  badge: {
+    fontSize: "10px",
+    fontWeight: "700",
+    color: "#0a1628",
+    background: "#f5e9c8",
+    padding: "3px 8px",
+    borderRadius: "20px",
+    textTransform: "capitalize",
+    flexShrink: 0,
+  },
+  route: {
+    fontSize: "13px",
+    fontWeight: "600",
+    color: "#333",
+    marginBottom: "2px",
+  },
+  continent: { fontSize: "12px", color: "#888", marginBottom: "8px" },
+  date: { fontSize: "12px", color: "#555", marginBottom: "4px" },
+  duration: { fontSize: "12px", color: "#555", marginBottom: "8px" },
+  price: {
+    fontSize: "18px",
+    fontWeight: "800",
+    color: "#0a1628",
+    marginBottom: "4px",
+  },
+  seats: { fontSize: "12px", color: "#888", marginBottom: "8px" },
+  description: {
+    fontSize: "13px",
+    color: "#555",
+    lineHeight: "1.6",
+    marginBottom: "8px",
+  },
+  seeMoreBtn: {
+    border: "none",
+    background: "none",
+    color: "#0a1628",
+    fontWeight: "600",
+    fontSize: "13px",
+    cursor: "pointer",
+    padding: "0",
+    marginBottom: "12px",
+    display: "block",
+  },
+  heartBtn: {
+    width: "100%",
+    padding: "8px",
+    border: "1px solid #ddd",
+    borderRadius: "8px",
+    background: "#fff",
+    fontSize: "13px",
+    fontWeight: "600",
+    cursor: "pointer",
+    marginBottom: "10px",
+    transition: "all 0.2s",
+  },
+  heartBtnActive: {
+    background: "#fff5f5",
+    borderColor: "#ffcccc",
+    color: "#c00",
+  },
+  empty: { textAlign: "center", padding: "80px 0" },
+  emptyIcon: { fontSize: "56px", marginBottom: "16px" },
+  emptyTitle: {
+    fontSize: "20px",
+    fontWeight: "800",
+    color: "#111",
+    marginBottom: "8px",
+  },
+  emptyText: { fontSize: "14px", color: "#888" },
+  loading: {
+    color: "#888",
+    fontSize: "14px",
+    textAlign: "center",
+    padding: "40px 0",
+  },
+  error: {
+    color: "#c00",
+    fontSize: "14px",
+    textAlign: "center",
+    padding: "40px 0",
+  },
 };
